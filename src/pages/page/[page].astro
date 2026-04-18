@@ -1,24 +1,38 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+export const getStaticPaths: GetStaticPaths = async () => {
+	const posts = (await getCollection('blog')).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	);
+	const postsPerPage = 10;
+	const totalPages = Math.ceil(posts.length / postsPerPage);
 
-const postsPerPage = 10;
-const totalPages = Math.ceil(posts.length / postsPerPage);
-const currentPage = 1;
-const paginatedPosts = posts.slice(0, postsPerPage);
+	return Array.from({ length: totalPages - 1 }, (_, i) => {
+		const page = i + 2;
+		return {
+			params: { page: String(page) },
+			props: {
+				posts: posts.slice((page - 1) * postsPerPage, page * postsPerPage),
+				currentPage: page,
+				totalPages,
+			},
+		};
+	});
+};
+
+const { posts, currentPage, totalPages } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`${SITE_TITLE} — Page ${currentPage}`} description={SITE_DESCRIPTION} />
 		<style>
 			html, body {
 				height: 100%;
@@ -108,7 +122,7 @@ const paginatedPosts = posts.slice(0, postsPerPage);
 			<p class="tagline">{SITE_DESCRIPTION}</p>
 			<ul class="posts">
 				{
-					paginatedPosts.map((post) => (
+					posts.map((post: any) => (
 						<li>
 							<a href={`/blog/${post.id}/`}>
 								<h2 class="post-title">{post.data.title}</h2>
@@ -123,12 +137,18 @@ const paginatedPosts = posts.slice(0, postsPerPage);
 					))
 				}
 			</ul>
-			{totalPages > 1 && (
-				<nav class="pagination">
+			<nav class="pagination">
+				{currentPage === 2 ? (
+					<a href="/">&larr; Newer posts</a>
+				) : (
+					<a href={`/page/${currentPage - 1}`}>&larr; Newer posts</a>
+				)}
+				{currentPage < totalPages ? (
+					<a href={`/page/${currentPage + 1}`}>Older posts &rarr;</a>
+				) : (
 					<span></span>
-					<a href="/page/2">Older posts &rarr;</a>
-				</nav>
-			)}
+				)}
+			</nav>
 		</main>
 		<Footer />
 	</body>
