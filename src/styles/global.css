@@ -99,6 +99,9 @@ code {
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 pre > code {
 	all: unset;
