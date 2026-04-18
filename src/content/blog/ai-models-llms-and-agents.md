@@ -72,15 +72,15 @@ Write a C++ function... save as add.cpp
 
 ### Step 2 — Agent → LLM (request)
 ```
-[system]  You are a coding agent. Tools: write_file, read_file,
-          list_dir.
-[user]    Write a C++ function... save as add.cpp
+[system]  You are a coding agent.
+  Tools: write_file, read_file, list_dir.
+[user]  Write a C++ function... save as add.cpp
 ```
 
 ### Step 3 — LLM → Agent (response)
 ```
 [assistant]  I'll check the folder first.
-             <tool_call> list_dir({ "path": "." }) </tool_call>
+  <tool_call> list_dir({ "path": "." }) </tool_call>
 ```
 
 ### Step 4 — Agent runs the tool
@@ -94,21 +94,21 @@ The agent executes the `list_dir` call. Output:
 ### Step 5 — Agent → LLM (request)
 Notice the conversation is growing — the agent appends the tool result and resends *everything* to the LLM.
 ```
-[system]     You are a coding agent. Tools: ...
-[user]       Write a C++ function... save as add.cpp
+[system]  You are a coding agent. Tools: ...
+[user]  Write a C++ function... save as add.cpp
 [assistant]  I'll check the folder first.
-             <tool_call> list_dir({ "path": "." }) </tool_call>
-[tool]       ["README.md", "notes.txt"]
+  <tool_call> list_dir({ "path": "." }) </tool_call>
+[tool]  ["README.md", "notes.txt"]
 ```
 
 ### Step 6 — LLM → Agent (response)
 ```
 [assistant]  <tool_call>
-               write_file({
-                 "path": "./add.cpp",
-                 "content": "int add(int a, int b) {\n..."
-               })
-             </tool_call>
+  write_file({
+    "path": "./add.cpp",
+    "content": "int add(int a, int b) {\n..."
+  })
+</tool_call>
 ```
 
 ### Step 7 — Agent runs the tool
@@ -121,13 +121,14 @@ The agent executes the `write_file` call. Output:
 
 ### Step 8 — Agent → LLM (request)
 ```
-[system]     You are a coding agent. Tools: ...
-[user]       Write a C++ function... save as add.cpp
+[system]  You are a coding agent. Tools: ...
+[user]  Write a C++ function... save as add.cpp
 [assistant]  I'll check the folder first.
-             <tool_call> list_dir({ "path": "." }) </tool_call>
-[tool]       ["README.md", "notes.txt"]
-[assistant]  <tool_call> write_file("./add.cpp", ...) </tool_call>
-[tool]       { "status": "success", "bytes_written": 42 }
+  <tool_call> list_dir({ "path": "." }) </tool_call>
+[tool]  ["README.md", "notes.txt"]
+[assistant]
+  <tool_call> write_file("./add.cpp", ...) </tool_call>
+[tool]  { "status": "success", "bytes_written": 42 }
 ```
 
 ### Step 9 — LLM → Agent (response)
@@ -148,26 +149,29 @@ int add(int a, int b) {
 
 ### Step 11 — Agent → LLM (request)
 ```
-[system]     You are a coding agent. Tools: ...
-[user]       Write a C++ function... save as add.cpp
+[system]  You are a coding agent. Tools: ...
+[user]  Write a C++ function... save as add.cpp
 [assistant]  I'll check the folder first.
-             <tool_call> list_dir({ "path": "." }) </tool_call>
-[tool]       ["README.md", "notes.txt"]
-[assistant]  <tool_call> write_file("./add.cpp", ...) </tool_call>
-[tool]       { "status": "success", "bytes_written": 42 }
-[assistant]  <tool_call> read_file("./add.cpp") </tool_call>
-[tool]       int add(int a, int b) {
-                 return a + b;
-             }
+  <tool_call> list_dir({ "path": "." }) </tool_call>
+[tool]  ["README.md", "notes.txt"]
+[assistant]
+  <tool_call> write_file("./add.cpp", ...) </tool_call>
+[tool]  { "status": "success", "bytes_written": 42 }
+[assistant]
+  <tool_call> read_file("./add.cpp") </tool_call>
+[tool]
+  int add(int a, int b) {
+      return a + b;
+  }
 ```
 
 ### Step 12 — LLM → Agent → You (final response)
 ```
 [assistant]  Done. I created ./add.cpp containing:
 
-                 int add(int a, int b) {
-                     return a + b;
-                 }
+  int add(int a, int b) {
+      return a + b;
+  }
 ```
 No tool call → the agent exits the loop and delivers this message to you.
 
