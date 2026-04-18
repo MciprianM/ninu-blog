@@ -106,7 +106,7 @@ Notice the conversation is growing — the agent appends the tool result and res
 [assistant]  <tool_call>
                write_file({
                  "path": "./add.cpp",
-                 "content": "int add(int a, int b) {\n    return a + b;\n}\n"
+                 "content": "int add(int a, int b) {\n..."
                })
              </tool_call>
 ```
@@ -126,14 +126,14 @@ The agent executes the `write_file` call. Output:
 [assistant]  I'll check the folder first.
              <tool_call> list_dir({ "path": "." }) </tool_call>
 [tool]       ["README.md", "notes.txt"]
-[assistant]  <tool_call> write_file({ "path": "./add.cpp", ... }) </tool_call>
+[assistant]  <tool_call> write_file("./add.cpp", ...) </tool_call>
 [tool]       { "status": "success", "bytes_written": 42 }
 ```
 
 ### Step 9 — LLM → Agent (response)
 A careful LLM doesn't trust a `"success"` status blindly — the write could have failed silently or produced unexpected content, so it reads the file back to verify.
 ```
-[assistant]  <tool_call> read_file({ "path": "./add.cpp" }) </tool_call>
+[assistant]  <tool_call> read_file("./add.cpp") </tool_call>
 ```
 
 ### Step 10 — Agent runs the tool
@@ -153,9 +153,9 @@ int add(int a, int b) {
 [assistant]  I'll check the folder first.
              <tool_call> list_dir({ "path": "." }) </tool_call>
 [tool]       ["README.md", "notes.txt"]
-[assistant]  <tool_call> write_file({ "path": "./add.cpp", ... }) </tool_call>
+[assistant]  <tool_call> write_file("./add.cpp", ...) </tool_call>
 [tool]       { "status": "success", "bytes_written": 42 }
-[assistant]  <tool_call> read_file({ "path": "./add.cpp" }) </tool_call>
+[assistant]  <tool_call> read_file("./add.cpp") </tool_call>
 [tool]       int add(int a, int b) {
                  return a + b;
              }
