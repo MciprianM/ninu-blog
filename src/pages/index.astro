@@ -16,8 +16,16 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
+			html, body {
+				height: 100%;
+			}
+			body {
+				display: flex;
+				flex-direction: column;
+			}
 			main {
 				width: 960px;
+				flex: 1;
 			}
 			.tagline {
 				margin: 0 0 2rem;
@@ -41,6 +49,11 @@ const posts = (await getCollection('blog')).sort(
 				color: rgb(var(--black));
 				line-height: 1.3;
 			}
+			.description {
+				margin: 0.25rem 0 0;
+				color: rgb(var(--gray));
+				font-size: 0.95rem;
+			}
 			.date {
 				margin: 0.25rem 0 0;
 				color: rgb(var(--gray));
@@ -62,6 +75,9 @@ const posts = (await getCollection('blog')).sort(
 							<li>
 								<a href={`/blog/${post.id}/`}>
 									<h4 class="title">{post.data.title}</h4>
+									{post.data.description && (
+										<p class="description">{post.data.description}</p>
+									)}
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
