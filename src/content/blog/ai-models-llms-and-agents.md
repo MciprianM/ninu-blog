@@ -63,36 +63,38 @@ Because the LLM has no memory, the agent resends the full conversation on every 
 
 ---
 
-### Step 1 — You → Agent
+You send the prompt:
 ```
 Write a C++ function... save as add.cpp
 ```
 
-**Iteration 1 — check the folder**
+### Iteration 1 — check the folder
 
-### Step 2 — Agent → LLM (request)
+**Agent → LLM (request)**
 ```
 [system]  You are a coding agent.
   Tools: write_file, read_file, list_dir.
 [user]  Write a C++ function... save as add.cpp
 ```
 
-### Step 3 — LLM → Agent (response)
+**LLM → Agent (response)**
 ```
 [assistant]  I'll check the folder first.
   <tool_call> list_dir({ "path": "." }) </tool_call>
 ```
 
-### Step 4 — Agent runs the tool
+**Agent runs the tool**
+
 The agent executes the `list_dir` call. Output:
 ```
 ["README.md", "notes.txt"]
 ```
 
-**Iteration 2 — write the file**
+### Iteration 2 — write the file
 
-### Step 5 — Agent → LLM (request)
 Notice the conversation is growing — the agent appends the tool result and resends *everything* to the LLM.
+
+**Agent → LLM (request)**
 ```
 [system]  You are a coding agent. Tools: ...
 [user]  Write a C++ function... save as add.cpp
@@ -101,7 +103,7 @@ Notice the conversation is growing — the agent appends the tool result and res
 [tool]  ["README.md", "notes.txt"]
 ```
 
-### Step 6 — LLM → Agent (response)
+**LLM → Agent (response)**
 ```
 [assistant]  <tool_call>
   write_file({
@@ -111,15 +113,18 @@ Notice the conversation is growing — the agent appends the tool result and res
 </tool_call>
 ```
 
-### Step 7 — Agent runs the tool
+**Agent runs the tool**
+
 The agent executes the `write_file` call. Output:
 ```
 { "status": "success", "bytes_written": 42 }
 ```
 
-**Iteration 3 — verify the result**
+### Iteration 3 — verify the result
 
-### Step 8 — Agent → LLM (request)
+A careful LLM doesn't trust a `"success"` status blindly — the write could have failed silently or produced unexpected content, so it reads the file back to verify.
+
+**Agent → LLM (request)**
 ```
 [system]  You are a coding agent. Tools: ...
 [user]  Write a C++ function... save as add.cpp
@@ -131,13 +136,14 @@ The agent executes the `write_file` call. Output:
 [tool]  { "status": "success", "bytes_written": 42 }
 ```
 
-### Step 9 — LLM → Agent (response)
-A careful LLM doesn't trust a `"success"` status blindly — the write could have failed silently or produced unexpected content, so it reads the file back to verify.
+**LLM → Agent (response)**
 ```
-[assistant]  <tool_call> read_file("./add.cpp") </tool_call>
+[assistant]
+  <tool_call> read_file("./add.cpp") </tool_call>
 ```
 
-### Step 10 — Agent runs the tool
+**Agent runs the tool**
+
 The agent executes the `read_file` call. Output:
 ```
 int add(int a, int b) {
@@ -145,9 +151,9 @@ int add(int a, int b) {
 }
 ```
 
-**Iteration 4 — nothing left to do**
+### Iteration 4 — nothing left to do
 
-### Step 11 — Agent → LLM (request)
+**Agent → LLM (request)**
 ```
 [system]  You are a coding agent. Tools: ...
 [user]  Write a C++ function... save as add.cpp
@@ -165,7 +171,7 @@ int add(int a, int b) {
   }
 ```
 
-### Step 12 — LLM → Agent → You (final response)
+**LLM → Agent → You (final response)**
 ```
 [assistant]  Done. I created ./add.cpp containing:
 
