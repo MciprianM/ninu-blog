@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ninu.dev/sitemap-index.xml
