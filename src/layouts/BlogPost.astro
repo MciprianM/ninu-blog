@@ -31,7 +31,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			},
 			"mainEntityOfPage": {
 				"@type": "WebPage",
-				"@id": `https://ninu.dev/blog/`
+				"@id": Astro.url.href
 			}
 		})} />
 		<style>
